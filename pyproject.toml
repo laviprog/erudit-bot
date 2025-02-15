@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "erudit-bot"
+version = "0.1.0"
+description = "This project includes a telegram bot for registering users for smart games, an api for managing this bot and notifications about upcoming events."
+authors = ["Victor Laryushin <laviprog@ya.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiogram = "3.17.0"
+pydantic-settings = "2.1.0"
+redis = ">=5.0.0"
+sqlalchemy = "2.0.37"
+alembic = "1.14.1"
+fastapi = "0.115.8"
+uvicorn = "0.34.0"
+passlib = "1.7.4"
+bcrypt = "<4.0"
+pyjwt = "2.8.0"
+asyncpg = "0.30.0"
+psycopg2-binary = "2.9.9"
+greenlet = "3.0.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
