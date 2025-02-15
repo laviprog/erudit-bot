@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
-from src.database.models import Admin
+from src.database.models import Admin, User
 
 T = TypeVar("T")
 
@@ -94,10 +94,15 @@ async def delete_object(session: AsyncSession, model: Type[T], obj_id: int) -> b
     return False
 
 
-async def get_admin_by_username(session: AsyncSession, username: str):
-    result = await session.execute(
-        select(Admin)
-        .filter(Admin.username == username)
-    )
+async def get_admin_by_username(session: AsyncSession, username: str) -> Optional[Admin]:
+    result = await get_objects(session, Admin, filters={"username": username})
 
-    return result.scalar_one_or_none()
+    if result:
+        return result[0]
+
+
+async def get_user_by_telegram_id(session: AsyncSession, telegram_id: int) -> Optional[User]:
+    result = await get_objects(session, Admin, filters={"telegram_id": telegram_id})
+
+    if result:
+        return result[0]
