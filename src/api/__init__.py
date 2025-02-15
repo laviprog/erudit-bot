@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
 
 from src.api.routes.auth import router as auth_router, hash_password
+from src.api.routes.users import router as users_router
 from src.config import settings
 from src.database import async_session
 from src.database.models import Admin
@@ -44,6 +45,7 @@ app.add_middleware(
 
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(users_router, prefix="/users", tags=["users"])
 
 
 async def start_api():
