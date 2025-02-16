@@ -96,13 +96,9 @@ async def delete_object(session: AsyncSession, model: Type[T], obj_id: int) -> b
 
 async def get_admin_by_username(session: AsyncSession, username: str) -> Optional[Admin]:
     result = await get_objects(session, Admin, filters={"username": username})
-
-    if result:
-        return result[0]
+    return next(iter(result), None)
 
 
 async def get_user_by_telegram_id(session: AsyncSession, telegram_id: int) -> Optional[User]:
-    result = await get_objects(session, Admin, filters={"telegram_id": telegram_id})
-
-    if result:
-        return result[0]
+    result = await get_objects(session, User, filters={"telegram_id": telegram_id})
+    return next(iter(result), None)
