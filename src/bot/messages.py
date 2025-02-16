@@ -1,7 +1,8 @@
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-from src.bot.keyboards import get_reply_keyboard, get_inline_keyboard_for_profile_management
+from src.bot.keyboards import get_reply_keyboard, get_inline_keyboard_for_profile_management, \
+    get_reply_keyboard_start_registration, get_reply_keyboard_phone_number
 from src.database.models import User
 
 
@@ -40,9 +41,20 @@ class Message:
         return {key: value for key, value in self.__dict__.items() if value is not None}
 
 
-async def get_welcome_message() -> Message:
+async def get_welcome_message(user: User) -> Message:
+    if user:
+        return Message(
+            text=(
+                "Welcome text for active user"
+            ),
+            keyboard=await get_reply_keyboard()
+        )
+
     return Message(
-        "Welcome text"
+        text=(
+            "Welcome text"
+        ),
+        keyboard=await get_reply_keyboard_start_registration()
     )
 
 
@@ -88,4 +100,46 @@ async def get_message_with_reply_keyboard(
     return Message(
         text=text,
         keyboard=await get_reply_keyboard()
+    )
+
+
+async def get_start_registration_message(user):
+    if user:
+        return Message(
+            text=(
+                "Вы уже зарегистрированы, выберите команду из меню или одну из кнопок ниже ↓ "
+            ),
+        )
+
+    return Message(
+        text=(
+            "Начнем регистрацию!\nВведите свое полное имя (например, Иван Иванов)"
+        ),
+        keyboard=ReplyKeyboardRemove(),
+    )
+
+
+async def get_phone_request_message():
+    return Message(
+        text=(
+            "Отправьте свой номер телефона используя кнопку ниже"
+        ),
+        keyboard=await get_reply_keyboard_phone_number(),
+    )
+
+
+async def get_phone_error_message() -> Message:
+    return Message(
+        text=(
+            "Отправьте свой номер телефона используя кнопку ниже"
+        ),
+    )
+
+
+async def get_start_edit_profile_message() -> Message:
+    return Message(
+        text=(
+            "Начнем изменение профиля\nВведите свое полное имя (например, Иван Иванов)"
+        ),
+        keyboard=ReplyKeyboardRemove(),
     )

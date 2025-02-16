@@ -13,7 +13,6 @@ class User(Base):
     id = Column(BigInteger, primary_key=True, index=True)
     username = Column(String, nullable=False, unique=True)
     full_name = Column(String, nullable=True)
-    telegram_id = Column(BigInteger, nullable=True)
     phone_number = Column(String, nullable=True)
 
     applications = relationship("Application", back_populates="captain", cascade="all, delete")

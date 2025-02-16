@@ -40,7 +40,6 @@ class User(BaseDTO):
     id: Optional[int] = None
     username: Optional[str] = None
     full_name: Optional[str] = None
-    telegram_id: Optional[int] = None
     phone_number: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
