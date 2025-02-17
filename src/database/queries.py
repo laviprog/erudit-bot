@@ -1,10 +1,10 @@
 from typing import Type, TypeVar, Optional, List
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
-from src.database.models import Admin, User
+from src.database.models import Admin, Event
 
 T = TypeVar("T")
 
@@ -97,3 +97,12 @@ async def delete_object(session: AsyncSession, model: Type[T], obj_id: int) -> b
 async def get_admin_by_username(session: AsyncSession, username: str) -> Optional[Admin]:
     result = await get_objects(session, Admin, filters={"username": username})
     return next(iter(result), None)
+
+
+async def get_current_events(session: AsyncSession):
+    result = await session.execute(
+        select(Event)
+        .where(Event.event_time >= func.now())
+        .order_by(Event.event_time)
+    )
+    return result.scalars().all()

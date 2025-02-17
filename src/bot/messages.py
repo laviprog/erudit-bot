@@ -2,8 +2,8 @@ from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from src.bot.keyboards import get_reply_keyboard, get_inline_keyboard_for_profile_management, \
-    get_reply_keyboard_start_registration, get_reply_keyboard_phone_number
-from src.database.models import User
+    get_reply_keyboard_start_registration, get_reply_keyboard_phone_number, get_inline_keyboard_for_event_registration
+from src.database.models import User, Event
 
 
 class Message:
@@ -142,4 +142,23 @@ async def get_start_edit_profile_message() -> Message:
             "Начнем изменение профиля\nВведите свое полное имя (например, Иван Иванов)"
         ),
         keyboard=ReplyKeyboardRemove(),
+    )
+
+
+async def get_event_message(event: Event = None) -> Message:
+    if not event:
+        return Message(
+            text=(
+                "К сожалению, событий нет. Мы обязательно вам сообщим о новых событиях!"
+            ),
+        )
+
+    return Message(
+        text=(
+            f"📅 {event.event_time.strftime('%d.%m.%Y %H:%M')} - {event.title}\n"
+            f"📍 {event.location}\n"
+            f"📝 {event.description or 'Без описания'}"
+        ),
+        keyboard=await get_inline_keyboard_for_event_registration(event.id),
+        image_url=event.image_url,
     )

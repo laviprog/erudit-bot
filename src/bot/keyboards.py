@@ -40,3 +40,15 @@ async def get_reply_keyboard_phone_number():
         resize_keyboard=True,
     )
 
+
+async def get_inline_keyboard_for_event_registration(event_id: int):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="✅ Зарегистрироваться",
+                    callback_data=f"register_event:{event_id}"
+                )
+            ],
+        ]
+    )
