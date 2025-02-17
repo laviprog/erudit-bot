@@ -59,7 +59,7 @@ async def send_notification_all_users(message: Message, date: datetime = None, j
 
         for user in users:
             if date is None:
-                await send_notification(user.telegram_id, message)
+                await send_notification(user.id, message)
 
             else:
-                create_notification(user.telegram_id, message, date, job_id)
+                create_notification(user.id, message, date, job_id)
