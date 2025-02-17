@@ -1,9 +1,12 @@
+from datetime import datetime
+
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from src.bot.keyboards import get_reply_keyboard, get_inline_keyboard_for_profile_management, \
-    get_reply_keyboard_start_registration, get_reply_keyboard_phone_number, get_inline_keyboard_for_event_registration
-from src.database.models import User, Event
+    get_reply_keyboard_start_registration, get_reply_keyboard_phone_number, get_inline_keyboard_for_event_registration, \
+    get_inline_keyboard_for_application_management
+from src.database.models import User, Event, Application, Status
 
 
 class Message:
@@ -145,6 +148,14 @@ async def get_start_edit_profile_message() -> Message:
     )
 
 
+async def get_event_text(event: Event) -> str:
+    return (
+        f"📅 {event.event_time.strftime('%d.%m.%Y %H:%M')} - {event.title}\n"
+        f"📍 {event.location}\n"
+        f"📝 {event.description or 'Без описания'}"
+    )
+
+
 async def get_event_message(event: Event = None) -> Message:
     if not event:
         return Message(
@@ -154,11 +165,100 @@ async def get_event_message(event: Event = None) -> Message:
         )
 
     return Message(
-        text=(
-            f"📅 {event.event_time.strftime('%d.%m.%Y %H:%M')} - {event.title}\n"
-            f"📍 {event.location}\n"
-            f"📝 {event.description or 'Без описания'}"
-        ),
+        text=await get_event_text(event),
         keyboard=await get_inline_keyboard_for_event_registration(event.id),
         image_url=event.image_url,
+    )
+
+
+async def get_application_text(application: Application) -> str:
+    STATUS_LABELS = {
+        Status.APPROVED: "✅ Подтверждена",
+        Status.PENDING: "⏳ Ожидает подтверждения",
+        Status.DECLINED: "❌ Отклонена",
+    }
+    status = STATUS_LABELS.get(application.status, "⚠ Неизвестный статус")
+
+    return (
+        f"📌 Ваша заявка на это событие:\nНазвание команды: {application.team_name}\n"
+        f"Количество участников: {application.team_size}\nСтатус: {status}"
+    )
+
+
+async def get_application_message(application: Application, event: Event = None) -> Message:
+    text = await get_application_text(application)
+
+    if event:
+        if event.end_registration_time < datetime.now():
+            return Message(
+                text=(
+                    "К сожалению, регистрация уже закончилась, свяжитесь с организаторами"
+                ),
+            )
+
+        else:
+            event_text = await get_event_text(event)
+            text = event_text + '\n\n' + text
+
+    return Message(
+        text,
+        await get_inline_keyboard_for_application_management(application.id),
+    )
+
+
+async def get_message_no_applications() -> Message:
+    return Message(
+        text=(
+            "На текущий момент у вас нет заявок на события"
+        ),
+        keyboard=await get_reply_keyboard(),
+    )
+
+
+async def get_start_event_registration_message(event: Event) -> Message:
+    return Message(
+        text=(
+            f"Начинаем регистрацию на событие: {event.title}"
+        ),
+    )
+
+
+async def get_request_team_name_message() -> Message:
+    return Message(
+        text=(
+            "Введите название вашей команды"
+        ),
+        keyboard=ReplyKeyboardRemove()
+    )
+
+
+async def get_request_team_size_message() -> Message:
+    return Message(
+        text=(
+            "Сколько человек в вашей команде? (от 2 до 10 участников)"
+        ),
+    )
+
+
+async def get_team_size_value_error_message() -> Message:
+    return Message(
+        text=(
+            "🚫 Введите число - количество участников вашей команды. Попробуйте снова"
+        ),
+    )
+
+
+async def get_team_size_error_message() -> Message:
+    return Message(
+        text=(
+            "🚫 Количество участников должно быть от 2 до 10. Попробуйте снова"
+        ),
+    )
+
+
+async def get_start_edit_application_message(event: Event) -> Message:
+    return Message(
+        text=(
+            f"Приступаем к изменения заявки на событие: {event.title}"
+        ),
     )

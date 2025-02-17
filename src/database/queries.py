@@ -4,7 +4,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
-from src.database.models import Admin, Event
+from src.database.models import Admin, Event, Application
 
 T = TypeVar("T")
 
@@ -99,10 +99,40 @@ async def get_admin_by_username(session: AsyncSession, username: str) -> Optiona
     return next(iter(result), None)
 
 
-async def get_current_events(session: AsyncSession):
+async def get_current_events(session: AsyncSession) -> List[Event]:
     result = await session.execute(
         select(Event)
         .where(Event.event_time >= func.now())
         .order_by(Event.event_time)
     )
-    return result.scalars().all()
+    return list(result.scalars().all())
+
+
+async def get_application_by_event_and_user(
+        session: AsyncSession,
+        event_id: int,
+        captain_id: int
+) -> Optional[Application]:
+    result = await get_objects(
+        session,
+        Application,
+        filters={
+            "event_id": event_id,
+            "captain_id": captain_id,
+        }
+    )
+    return next(iter(result), None)
+
+
+async def get_applications_by_user(
+        session: AsyncSession,
+        captain_id
+) -> List[Application]:
+    result = await session.execute(
+        select(Application)
+        .join(Event)
+        .filter(Application.captain_id == captain_id)
+        .filter(Event.event_time > func.now())
+    )
+
+    return list(result.scalars().all())

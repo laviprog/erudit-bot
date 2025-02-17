@@ -52,3 +52,10 @@ async def get_inline_keyboard_for_event_registration(event_id: int):
             ],
         ]
     )
+
+
+async def get_inline_keyboard_for_application_management(application_id: int):
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="✏️ Изменить заявку", callback_data=f"edit_application:{application_id}")],
+        [InlineKeyboardButton(text="❌ Удалить заявку", callback_data=f"delete_application:{application_id}")],
+    ])
