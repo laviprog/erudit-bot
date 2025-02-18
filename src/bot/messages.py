@@ -262,3 +262,10 @@ async def get_start_edit_application_message(event: Event) -> Message:
             f"Приступаем к изменения заявки на событие: {event.title}"
         ),
     )
+
+
+async def get_message_before_event(event: Event) -> Message:
+    message = await get_event_message(event)
+    message.text = ("Не забудь сообщить всем участникам команды, ведь уже завтра долгожданное событие!\n\n"
+                    + message.text)
+    return message
