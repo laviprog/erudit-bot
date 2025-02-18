@@ -1,0 +1,45 @@
+services:
+  erudit-bot:
+    build:
+      context: .
+    container_name: erudit-bot
+    image: erudit-bot
+    env_file:
+      - .env
+    ports:
+      - 127.0.0.1:8000:8000
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - network1
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: # password
+      POSTGRES_USER: # username
+      POSTGRES_DB: # db
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - network1
+
+  redis:
+    image: redis:7.4.2
+    container_name: redis
+    restart: always
+    ports:
+      - 127.0.0.1:6379:6379
+    networks:
+      - network1
+
+networks:
+  network1:
+
+volumes:
+  postgres_data:
