@@ -2,7 +2,7 @@ from typing import Type, TypeVar, Optional, List
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import InstrumentedAttribute
+from sqlalchemy.orm import InstrumentedAttribute, selectinload
 
 from src.database.models import Admin, Event, Application
 
@@ -133,6 +133,31 @@ async def get_applications_by_user(
         .join(Event)
         .filter(Application.captain_id == captain_id)
         .filter(Event.event_time > func.now())
+    )
+
+    return list(result.scalars().all())
+
+
+async def get_applications_with_user(
+        session: AsyncSession,
+        filters: Optional[dict] = None,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+        order_by: Optional[InstrumentedAttribute] = None,
+        desc: bool = False
+) -> List[Application]:
+    query = select(Application).options(selectinload(Application.captain))
+
+    if filters:
+        query = query.filter_by(**filters)
+
+    if order_by:
+        query = query.order_by(order_by.desc() if desc else order_by)
+
+    result = await session.execute(
+        query
+        .offset(offset)
+        .limit(limit)
     )
 
     return list(result.scalars().all())

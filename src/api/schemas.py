@@ -52,9 +52,12 @@ class Application(BaseDTO):
     team_size: Optional[int] = None
     status: Optional[Status] = None
     event_id: Optional[int] = None
-    captain: Optional[User] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ApplicationWithUser(Application):
+    captain: Optional[User] = None
 
 
 class Message(BaseDTO):

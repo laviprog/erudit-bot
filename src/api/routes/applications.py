@@ -5,13 +5,14 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.routes import logger
 from src.api.routes.auth import get_current_admin
-from src.api.schemas import Application as ApplicationDTO
+from src.api.schemas import Application as ApplicationDTO, ApplicationWithUser
 from src.bot.messages import get_application_message, get_message_before_event
 from src.bot.notification.notify import create_notification, send_notification
 from src.database import get_db
 from src.database.models import Application, User, Event
-from src.database.queries import update_object, get_object_by_id, get_objects
+from src.database.queries import update_object, get_object_by_id, get_objects, get_applications_with_user
 
 router = APIRouter()
 
@@ -68,9 +69,8 @@ async def get_applications(
     if filters:
         filters = json.loads(filters)
 
-    applications = await get_objects(
-        db,
-        Application,
+    applications = await get_applications_with_user(
+        session=db,
         filters=filters,
         offset=offset,
         limit=limit,
@@ -78,4 +78,4 @@ async def get_applications(
         desc=desc
     )
 
-    return ApplicationDTO.from_orm_list(applications)
+    return ApplicationWithUser.from_orm_list(applications)
